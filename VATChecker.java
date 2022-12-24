@@ -18,7 +18,6 @@ import org.xml.sax.SAXException;
 
 import java.util.HashMap;
 import java.util.Scanner;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class VATChecker {
@@ -39,21 +38,20 @@ public class VATChecker {
             Pattern BEIEESPattern = Pattern.compile("^[A-Z]{2}[0-9]+[A-Z]+$");
             Pattern NLPattern = Pattern.compile("^[A-Z]{2}[0-9]+[A-Z]+[0-9]{2}$");
 
-            Matcher generalMatcher = generalPattern.matcher(input);
-            Matcher ATMatcher = ATPattern.matcher(input);
-            Matcher BEIEESMatcher = BEIEESPattern.matcher(input);
-            Matcher NLMatcher = NLPattern.matcher(input);
+            Pattern[] regexCheck = { generalPattern, ATPattern, BEIEESPattern, NLPattern };
 
-            boolean generalMatch = generalMatcher.find();
-            boolean ATMatch = ATMatcher.find();
-            boolean BEIEESmatch = BEIEESMatcher.find();
-            boolean NLMatch = NLMatcher.find();
+            boolean match = false;
+            for (Pattern check : regexCheck) {
+                if (check.matcher(input).find()) {
+                    match = true;
+                }
+            }
 
             String countryCode;
             String VATNr;
 
             // Ce je vhod veljaven, klicem web storitev.
-            if (generalMatch || ATMatch || BEIEESmatch || NLMatch) {
+            if (match) {
                 countryCode = input.substring(0, 2);
                 VATNr = input.substring(2, input.length());
 
