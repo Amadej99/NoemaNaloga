@@ -32,16 +32,28 @@ public class VATChecker {
             // Odstranim morebitne presledke ter pretvorim morebitne male crke v velike.
             input = input.replace(" ", "").toUpperCase();
 
-            // Z regularnimi izrazi preverim veljavnost vhoda.
-            Pattern pattern = Pattern.compile("^[A-Z]{2}[0-9]+$");
-            Matcher matcher = pattern.matcher(input);
-            boolean match = matcher.find();
+            // Z regularnimi izrazi preverim veljavnost vhoda. Dolocene drzave imajo
+            // druagacne formate, zato svoji regularni izrazi.
+            Pattern generalPattern = Pattern.compile("^[A-Z]{2}[0-9]+$");
+            Pattern ATPattern = Pattern.compile("^[A-Z]{3}[0-9]+$");
+            Pattern BEIEESPattern = Pattern.compile("^[A-Z]{2}[0-9]+[A-Z]+$");
+            Pattern NLPattern = Pattern.compile("^[A-Z]{2}[0-9]+[A-Z]+[0-9]{2}$");
+
+            Matcher generalMatcher = generalPattern.matcher(input);
+            Matcher ATMatcher = ATPattern.matcher(input);
+            Matcher BEIEESMatcher = BEIEESPattern.matcher(input);
+            Matcher NLMatcher = NLPattern.matcher(input);
+
+            boolean generalMatch = generalMatcher.find();
+            boolean ATMatch = ATMatcher.find();
+            boolean BEIEESmatch = BEIEESMatcher.find();
+            boolean NLMatch = NLMatcher.find();
 
             String countryCode;
             String VATNr;
 
             // Ce je vhod veljaven, klicem web storitev.
-            if (match) {
+            if (generalMatch || ATMatch || BEIEESmatch || NLMatch) {
                 countryCode = input.substring(0, 2);
                 VATNr = input.substring(2, input.length());
 
