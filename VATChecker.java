@@ -36,16 +36,13 @@ public class VATChecker {
         slovenianRegion.put(Arrays.asList(313, 733), 381);
         slovenianRegion.put(Arrays.asList(313, 160), 352);
 
-        HashMap<List<Integer>, Integer> usRegion = new HashMap<>();
-
-        usRegion.put(Arrays.asList(197, 189), 381);
         // 196 + 346 -> Č (268)
         // 196 + 8224 -> Ć (262)
         // 313 + 733 -> Ž (381)
         // 313 + 160 -> Š (352)
 
         while (true) {
-            System.out.print("Vnesi davcno stevilko v formatu SI XXXXXXXX: ");
+            System.out.print(translate("VNESI DAVČNO ŠTEVILKO V FORMATU SI XXXXXXX: ".toCharArray(), slovenianRegion));
 
             String input = sc.nextLine();
 
@@ -84,9 +81,10 @@ public class VATChecker {
                 // prosim za vhod.
                 if (fault != null) {
                     if (fault.equals("noInternet")) {
-                        System.out.println("Vzpostavi povezavo z internetom!");
+                        System.out.println("VZPOSTAVI POVEZAVO Z INTERNETOM!");
                     } else {
-                        System.out.println("Napacna oznaka drzave / napaka na strezniku.");
+                        System.out.println(translate("NAPAČNA OZNAKA DRŽAVE / NAPAKA NA STREŽNIKU.".toCharArray(),
+                                slovenianRegion));
                     }
                     continue;
                 }
@@ -94,19 +92,11 @@ public class VATChecker {
                 // Preverim, ali je podjetje davcni zavezanec in prekinem zanko, saj smo dobili
                 // veljavni vhod.
                 if (response.get("valid").equals("false")) {
-                    System.out.println("Podjetje ni davcni zavezanec.");
+                    System.out.println(translate("PODJETJE NI DAVČNI ZAVEZANEC.".toCharArray(), slovenianRegion));
                 } else {
 
                     char[] name = response.get("name").toCharArray();
                     char[] address = response.get("address").toCharArray();
-
-                    // for (char c : name) {
-                    // System.out.println(c + " " + (int) c);
-                    // }
-                    // System.out.println();
-                    // for (char c : address) {
-                    // System.out.println(c + " " + (int) c);
-                    // }
 
                     String translatedName = translate(name, slovenianRegion);
                     String translatedAddress = translate(address, slovenianRegion);
@@ -121,10 +111,11 @@ public class VATChecker {
                 break;
             }
 
-            System.out.println("Vnesi veljavno davcno stevilko!");
+            System.out.println(translate("VNESI VELJAVNO DAVČNO ŠTEVILKO!".toCharArray(), slovenianRegion));
         }
     }
 
+    // Prevede napacne crke v odgovoru v pravilne slovenske.
     public static String translate(char[] sequence, HashMap<List<Integer>, Integer> region) {
         char[] newSequence = sequence;
         for (int i = 0; i < sequence.length - 1; i++) {
