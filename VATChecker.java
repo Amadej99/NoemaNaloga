@@ -42,7 +42,7 @@ public class VATChecker {
         // 313 + 160 -> Š (352)
 
         while (true) {
-            System.out.print(translate("VNESI DAVČNO ŠTEVILKO V FORMATU SI XXXXXXX: ".toCharArray(), slovenianRegion));
+            System.out.print("VNESI DAV" + (char) 268 + "NO " + (char) 352 + "TEVILKO V FORMATU SI XXXXXXX: ");
 
             String input = sc.nextLine();
 
@@ -83,8 +83,9 @@ public class VATChecker {
                     if (fault.equals("noInternet")) {
                         System.out.println("VZPOSTAVI POVEZAVO Z INTERNETOM!");
                     } else {
-                        System.out.println(translate("NAPAČNA OZNAKA DRŽAVE / NAPAKA NA STREŽNIKU.".toCharArray(),
-                                slovenianRegion));
+                        System.out.println(
+                                "NAPA" + (char) 268 + "NA OZNAKA DR" + (char) 381 + "AVE / NAPAKA NA STRE" + (char) 381
+                                        + "NIKU.");
                     }
                     continue;
                 }
@@ -92,7 +93,7 @@ public class VATChecker {
                 // Preverim, ali je podjetje davcni zavezanec in prekinem zanko, saj smo dobili
                 // veljavni vhod.
                 if (response.get("valid").equals("false")) {
-                    System.out.println(translate("PODJETJE NI DAVČNI ZAVEZANEC.".toCharArray(), slovenianRegion));
+                    System.out.println("PODJETJE NI DAV" + (char) 268 + "NI ZAVEZANEC.");
                 } else {
 
                     char[] name = response.get("name").toCharArray();
@@ -111,7 +112,7 @@ public class VATChecker {
                 break;
             }
 
-            System.out.println(translate("VNESI VELJAVNO DAVČNO ŠTEVILKO!".toCharArray(), slovenianRegion));
+            System.out.println("VNESI VELJAVNO DAV" + (char) 268 + "NO " + (char) 352 + "TEVILKO!");
         }
     }
 
