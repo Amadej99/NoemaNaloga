@@ -16,7 +16,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 public class VATChecker {
@@ -36,7 +34,7 @@ public class VATChecker {
         slovenianRegion.put(Arrays.asList(196, 346), 268);
         slovenianRegion.put(Arrays.asList(196, 8224), 262);
         slovenianRegion.put(Arrays.asList(313, 733), 381);
-        slovenianRegion.put(Arrays.asList(313, 160), 160);
+        slovenianRegion.put(Arrays.asList(313, 160), 352);
 
         HashMap<List<Integer>, Integer> usRegion = new HashMap<>();
 
@@ -98,21 +96,25 @@ public class VATChecker {
                 if (response.get("valid").equals("false")) {
                     System.out.println("Podjetje ni davcni zavezanec.");
                 } else {
-                    System.out.println("--------------------------------------------------------------");
+
                     char[] name = response.get("name").toCharArray();
                     char[] address = response.get("address").toCharArray();
 
-                    translate(address, slovenianRegion);
+                    // for (char c : name) {
+                    // System.out.println(c + " " + (int) c);
+                    // }
+                    // System.out.println();
+                    // for (char c : address) {
+                    // System.out.println(c + " " + (int) c);
+                    // }
+
+                    String translatedName = translate(name, slovenianRegion);
+                    String translatedAddress = translate(address, slovenianRegion);
 
                     System.out.println("--------------------------------------------------------------");
-
-                    for (char c : name) {
-                        System.out.println(c + " " + (int) c);
-                    }
-                    System.out.println();
-                    for (char c : address) {
-                        System.out.println(c + " " + (int) c);
-                    }
+                    System.out.println(translatedName);
+                    System.out.println(translatedAddress);
+                    System.out.println("--------------------------------------------------------------");
 
                 }
                 sc.close();
@@ -132,13 +134,12 @@ public class VATChecker {
                 if (group.getKey().contains(code) && group.getKey().contains(nextCode)) {
                     int newCode = group.getValue();
                     newSequence[i] = (char) newCode;
-                    newSequence[i + 1] = ' ';
+                    newSequence[i + 1] = '?';
                     i++;
                 }
             }
         }
-        String newString = newSequence.toString().replace(" ", "");
-        System.out.println(newString);
+        String newString = new String(newSequence).replace("?", "");
         return newString;
     }
 
@@ -186,8 +187,6 @@ public class VATChecker {
             BufferedReader in = new BufferedReader(isr);
 
             String responseString = in.readLine();
-
-            System.out.println(responseString);
 
             // Pretvori XML odgovor v Document objekt.
             Document document = parseXmlFile(responseString);
