@@ -7,7 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
-import javax.swing.colorchooser.ColorChooserComponentFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,7 +16,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -28,13 +31,21 @@ public class VATChecker {
     public static void main(String[] args) throws UnsupportedEncodingException {
         Scanner sc = new Scanner(System.in);
 
-        HashMap<Integer, Integer> translate = new HashMap<>();
-        // 196 + 346 -> Č
-        // 196 + 8224 -> Ć
-        // 313 + 733 -> Ž
-        // 313 + 160 -> Š
+        HashMap<List<Integer>, Integer> slovenianRegion = new HashMap<>();
 
-        PrintStream out = new PrintStream(System.out, true, "UTF-8");
+        slovenianRegion.put(Arrays.asList(196, 346), 268);
+        slovenianRegion.put(Arrays.asList(196, 8224), 262);
+        slovenianRegion.put(Arrays.asList(313, 733), 381);
+        slovenianRegion.put(Arrays.asList(313, 160), 160);
+
+        HashMap<List<Integer>, Integer> usRegion = new HashMap<>();
+
+        usRegion.put(Arrays.asList(197, 189), 381);
+        // 196 + 346 -> Č (268)
+        // 196 + 8224 -> Ć (262)
+        // 313 + 733 -> Ž (381)
+        // 313 + 160 -> Š (352)
+
         while (true) {
             System.out.print("Vnesi davcno stevilko v formatu SI XXXXXXXX: ");
 
@@ -88,10 +99,11 @@ public class VATChecker {
                     System.out.println("Podjetje ni davcni zavezanec.");
                 } else {
                     System.out.println("--------------------------------------------------------------");
-                    System.out.println(response.get("name"));
-                    System.out.println(response.get("address"));
                     char[] name = response.get("name").toCharArray();
                     char[] address = response.get("address").toCharArray();
+
+                    translate(address, slovenianRegion);
+
                     System.out.println("--------------------------------------------------------------");
 
                     for (char c : name) {
@@ -109,6 +121,25 @@ public class VATChecker {
 
             System.out.println("Vnesi veljavno davcno stevilko!");
         }
+    }
+
+    public static String translate(char[] sequence, HashMap<List<Integer>, Integer> region) {
+        char[] newSequence = sequence;
+        for (int i = 0; i < sequence.length - 1; i++) {
+            int code = (int) sequence[i];
+            int nextCode = (int) sequence[i + 1];
+            for (Map.Entry<List<Integer>, Integer> group : region.entrySet()) {
+                if (group.getKey().contains(code) && group.getKey().contains(nextCode)) {
+                    int newCode = group.getValue();
+                    newSequence[i] = (char) newCode;
+                    newSequence[i + 1] = ' ';
+                    i++;
+                }
+            }
+        }
+        String newString = newSequence.toString().replace(" ", "");
+        System.out.println(newString);
+        return newString;
     }
 
     public static HashMap<String, String> getVATDetails(String country, String VATNr) {
