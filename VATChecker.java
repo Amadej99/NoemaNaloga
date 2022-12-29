@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
+import javax.swing.colorchooser.ColorChooserComponentFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,9 +21,20 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+
 public class VATChecker {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
         Scanner sc = new Scanner(System.in);
+
+        HashMap<Integer, Integer> translate = new HashMap<>();
+        // 196 + 346 -> Č
+        // 196 + 8224 -> Ć
+        // 313 + 733 -> Ž
+        // 313 + 160 -> Š
+
+        PrintStream out = new PrintStream(System.out, true, "UTF-8");
         while (true) {
             System.out.print("Vnesi davcno stevilko v formatu SI XXXXXXXX: ");
 
@@ -78,7 +90,18 @@ public class VATChecker {
                     System.out.println("--------------------------------------------------------------");
                     System.out.println(response.get("name"));
                     System.out.println(response.get("address"));
+                    char[] name = response.get("name").toCharArray();
+                    char[] address = response.get("address").toCharArray();
                     System.out.println("--------------------------------------------------------------");
+
+                    for (char c : name) {
+                        System.out.println(c + " " + (int) c);
+                    }
+                    System.out.println();
+                    for (char c : address) {
+                        System.out.println(c + " " + (int) c);
+                    }
+
                 }
                 sc.close();
                 break;
@@ -132,6 +155,8 @@ public class VATChecker {
             BufferedReader in = new BufferedReader(isr);
 
             String responseString = in.readLine();
+
+            System.out.println(responseString);
 
             // Pretvori XML odgovor v Document objekt.
             Document document = parseXmlFile(responseString);
